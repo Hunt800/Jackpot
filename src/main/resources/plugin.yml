@@ -1,0 +1,13 @@
+name: Jackpot
+main: com.Hunt800.Jackpot.Jackpot
+version: 0.1.1
+author: Hunt800
+description: >
+    Set of gambling-related commands for Bukkit.
+commands:
+    roll:
+        description: For rolling dice
+        usage: |
+            Incorrect usage of /<command>. Examples:
+            /<command> 6 1 - Rolls 1 6-sided die
+             
