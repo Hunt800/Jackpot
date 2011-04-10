@@ -2,12 +2,19 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.Hunt800</groupId>
   <artifactId>Jackpot</artifactId>
-  <version>0.1.1</version>
+  <version>0.1.7</version>
   <name>Jackpot</name>
   <url></url>
   <dependencies>
     <!-- You don't necessarily need to depend on Permissions if you don't want to, but this is how you add a dependency -->
     <dependency>
+      <groupId>com.nijikokun.bukkit</groupId>
+      <artifactId>Permissions</artifactId>
+      <version>2.6</version>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+	<dependency>
       <groupId>org.bukkit</groupId>
       <artifactId>bukkit</artifactId>
       <version>0.0.1-SNAPSHOT</version>

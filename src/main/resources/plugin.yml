@@ -1,6 +1,6 @@
 name: Jackpot
 main: com.Hunt800.Jackpot.Jackpot
-version: 0.1.1
+version: 0.1.7
 author: Hunt800
 description: >
     Set of gambling-related commands for Bukkit.
@@ -10,4 +10,9 @@ commands:
         usage: |
             Incorrect usage of /<command>. Examples:
             /<command> 6 1 - Rolls 1 6-sided die
-             
+            /<command> 6 1 - Rolls 1 6-sides die and broadcasts the result to the server
+    cointoss:
+        description: For flipping coins
+        usage: |
+            Incorrect usage of /<command>. Examples:
+            /<command> 2 - Flips 2 coins
