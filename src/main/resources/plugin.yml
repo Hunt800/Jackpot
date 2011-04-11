@@ -1,6 +1,6 @@
 name: Jackpot
 main: com.Hunt800.Jackpot.Jackpot
-version: 0.1.7
+version: 0.2.2
 author: Hunt800
 description: >
     Set of gambling-related commands for Bukkit.
@@ -16,3 +16,10 @@ commands:
         usage: |
             Incorrect usage of /<command>. Examples:
             /<command> 2 - Flips 2 coins
+    card:
+        description: For all things card related
+        usage: |
+            Incorrect usage of /<command>. Examples:
+            /<command> draw - Draws one card and immediately discards it
+            /<command> shuffle - Resets the deck
+            /<command> see Nooby1 - Shows all cards current in the center of Nooby1's 'deck'

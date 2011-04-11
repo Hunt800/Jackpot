@@ -2,7 +2,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.Hunt800</groupId>
   <artifactId>Jackpot</artifactId>
-  <version>0.1.7</version>
+  <version>0.2.2</version>
   <name>Jackpot</name>
   <url></url>
   <dependencies>
