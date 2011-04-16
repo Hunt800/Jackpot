@@ -1,6 +1,6 @@
 name: Jackpot
 main: com.Hunt800.Jackpot.Jackpot
-version: 0.2.2
+version: 0.2.3
 author: Hunt800
 description: >
     Set of gambling-related commands for Bukkit.

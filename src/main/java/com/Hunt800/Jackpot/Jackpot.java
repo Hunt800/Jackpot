@@ -32,7 +32,7 @@ import org.bukkit.plugin.Plugin;
  * @author Hunt800
  */
 public class Jackpot extends JavaPlugin {
-    private final JackpotPlayerListener playerListener = new JackpotPlayerListener(this);
+    private JackpotPlayerListener playerListener = new JackpotPlayerListener(this, true);
     private final JackpotBlockListener blockListener = new JackpotBlockListener(this);
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
     private HashMap<Player, Deck> decks = new HashMap<Player, Deck>();
@@ -41,6 +41,7 @@ public class Jackpot extends JavaPlugin {
     private static final String FileDir = "plugins/Jackpot";
     private Integer defaultDistance = 25;
     private Integer defaultDiceSize = 6;
+    public boolean playingCards = true;
     
    
     public void onEnable() {
@@ -71,7 +72,9 @@ public class Jackpot extends JavaPlugin {
 	                        diceValue = rollDie(defaultDiceSize,1);
 	                    } else { //Non-default roll, multiple arguments
 	                    	diceNum = Integer.parseInt(split[0]);
+	                    	if(split.length == 2 && !split[1].toLowerCase().equals("g")) {
 	                    	sides = Integer.parseInt(split[1]);
+	                    	} else { sides = defaultDiceSize; }
 	                    	if(diceNum < 1 || diceNum > 10) { //In case user tries to roll less than 1 die or more than 10 (error/spam prevention)
 	                    		source.sendMessage(ChatColor.RED + "[Jackpot] ERROR: You can't roll less than " + ChatColor.WHITE + "1 " + ChatColor.RED + "or more than " + ChatColor.WHITE + "10 " + ChatColor.RED + "dice at a time! Setting [diceNum] to [1]");
 	                    		diceNum = 1; //Resets diceNum to 1 (default)
@@ -89,6 +92,9 @@ public class Jackpot extends JavaPlugin {
 	                    		hasBroadcasted = true; //...let server know that the message has been broadcasted
 	                    		getServer().broadcastMessage(result); //broadcast to the whole server
 	                    	}
+	                    } else if(split.length == 2 && split[1].toLowerCase().equals("g") && Permissions.has(source, "jackpot.roll.global")) {
+	                    	hasBroadcasted = true; //...let server know that the message has been broadcasted
+                    		getServer().broadcastMessage(result); //broadcast to the whole server
 	                    }
 	                    if(!hasBroadcasted) { //If the message has not been broadcasted (ie, globally)
 	                    	broadcastNear(source, result, defaultDistance); //Then broadcast [STRING: result] to all players within [INTEGER: defaultDistance] of [PLAYER: source]
@@ -102,10 +108,17 @@ public class Jackpot extends JavaPlugin {
                 
                 //Following block is for flipping coins
                 if(Permissions.has(source, "jackpot.flip.local") && cmdName.equals("cointoss")) {//If command = /cointoss and user has permission
+                	boolean broadcastGlobally = false;
                     if (split.length == 0) { //No args, just flip 1 coin
                         diceValue = flipCoin(1); //Flip
                     } else { //If there are arguments
-                    	diceNum = Integer.parseInt(split[0]); //The first argument is number of coins
+                    	if(split[0].toLowerCase().equals("g")) { //If num coins is skipped
+                    		diceNum = 1;
+                    		broadcastGlobally = true;
+                    	}
+                    	if(broadcastGlobally = false) {
+                    		diceNum = Integer.parseInt(split[0]); //The first argument is number of coins
+                    	}
                     	if(diceNum < 1 || diceNum > 10) { //Keeps number of coins at a reasonable level
                     		source.sendMessage(ChatColor.RED + "[Jackpot] ERROR: You can't flip less than " + ChatColor.WHITE + "1 " + ChatColor.RED + "or more than " + ChatColor.WHITE + "10 " + ChatColor.RED + "coins at a time! Setting [coinNum] to [1]");
                     		diceNum = 1;//Resets to default
@@ -116,6 +129,9 @@ public class Jackpot extends JavaPlugin {
                     String result = source.getDisplayName() + ChatColor.GOLD + " flipped " + ChatColor.WHITE + diceNum + ChatColor.GOLD + " coin(s) and got: " + ChatColor.RED + diceValue;
                     if(split.length == 2) { //If there's a second argument
                     	if(split[1].toLowerCase().equals("g") && Permissions.has(source, "jackpot.flip.global")) { //if the 2nd arg is 'g' and player has permission
+                    		broadcastGlobally = true;
+                    	}
+                    	if(broadcastGlobally) {
                     		hasBroadcasted = true; //Let the server know that the message has been broadcasted
                     		getServer().broadcastMessage(result); //Broadcast result to the entire server
                     	}
@@ -129,7 +145,7 @@ public class Jackpot extends JavaPlugin {
             		source.sendMessage(ChatColor.RED + "You do not have permission to flip coins!"); //Let them knwo that they do not have permission
             	}
             }
-                
+        if(playingCards == true) {
             if(cmdName.equals("card")){
             	if(split.length == 0) { //No args
             		source.sendMessage(ChatColor.RED + "I'm sorry, but that command requires parameters!");
@@ -290,9 +306,40 @@ public class Jackpot extends JavaPlugin {
             		}
             	}
             }
+        }
             }
             return true;
     }
+    //Get a property
+    private String getProperty(String toGet, String defaultVal) {
+    	Properties prop = new Properties(); //Property handler
+    	if(FileP.exists()) { //Only do this if the file exists
+    		try { //Try in case is fails
+    			FileInputStream in = new FileInputStream(FileP); //Loads path
+    			prop.load(in); //Loads a file
+    			
+    			
+    			if(prop.getProperty(toGet)!=null) {
+    				//Set properties:
+    				return prop.getProperty(toGet);
+    			} else {
+    				try {
+    	    			FileOutputStream out = new FileOutputStream(FileP); //Loads it
+    	        		//Set default properties:
+    	    			prop.setProperty(toGet, defaultVal);
+    	     
+    	        		//save properties to project root folder
+    	        		prop.store(out, null);
+    	        		
+    	        		return defaultVal;
+    	        	} catch (IOException ex) { ex.printStackTrace(); } //Prevent crashing
+    			}
+    		} catch (IOException ex) { ex.printStackTrace(); }
+    	}
+    	
+    	return "0";
+    }
+    
     
     //All things property related:
     private void loadProperties() {
@@ -305,8 +352,12 @@ public class Jackpot extends JavaPlugin {
     		prop.load(in);
     		
     		//Set properties (read from .properties)
-    		defaultDistance = Integer.parseInt((prop.getProperty("broadcast-distance")));
-    		defaultDiceSize = Integer.parseInt((prop.getProperty("default-dice-size")));
+    		defaultDistance = Integer.parseInt(getProperty("broadcast-distance","15"));
+    		defaultDiceSize = Integer.parseInt(getProperty("default-dice-size","6"));
+    		playingCards = Boolean.parseBoolean(getProperty("play-with-cards","true"));
+    		
+    		playerListener = new JackpotPlayerListener(this, playingCards);
+    		
     	} catch (IOException ex) { ex.printStackTrace(); } //Prevent crashing in case of error
     	} else {
     		try {
@@ -324,6 +375,7 @@ public class Jackpot extends JavaPlugin {
         		//Set default properties:
     			prop.setProperty("broadcast-distance", "25");
         		prop.setProperty("default-dice-size", "6");
+        		prop.setProperty("play-with-cards", "true");
      
         		//save properties to project root folder
         		prop.store(out, null);
